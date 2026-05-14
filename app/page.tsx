@@ -51,68 +51,71 @@ export default function Home() {
   }
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>🍽️ Restaurant Reviews</h1>
+    <div className="min-h-screen bg-gray-100 text-gray-900 p-6">
+      {/* HEADER */}
+      <h1 className="text-3xl font-bold text-center mb-6">
+        🍽️ Restaurant Reviews
+      </h1>
 
-      {/* FORM */}
-      <form onSubmit={handleSubmit} style={{ marginBottom: 20 }}>
-        <input
-          placeholder="Name"
-          value={form.name}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setForm({ ...form, name: e.target.value })
-          }
-        />
+      {/* FORM CARD */}
+      <div className="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-md mb-8">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <input
+            className="w-full p-2 border rounded"
+            placeholder="Restaurant Name"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
 
-        <input
-          placeholder="Cuisine"
-          value={form.cuisine}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setForm({ ...form, cuisine: e.target.value })
-          }
-        />
+          <input
+            className="w-full p-2 border rounded"
+            placeholder="Cuisine"
+            value={form.cuisine}
+            onChange={(e) => setForm({ ...form, cuisine: e.target.value })}
+          />
 
-        <input
-          placeholder="Rating"
-          value={form.rating}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setForm({ ...form, rating: e.target.value })
-          }
-        />
+          <input
+            className="w-full p-2 border rounded"
+            placeholder="Rating (1-5)"
+            value={form.rating}
+            onChange={(e) => setForm({ ...form, rating: e.target.value })}
+          />
 
-        <input
-          placeholder="Review"
-          value={form.review}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setForm({ ...form, review: e.target.value })
-          }
-        />
+          <input
+            className="w-full p-2 border rounded"
+            placeholder="Review"
+            value={form.review}
+            onChange={(e) => setForm({ ...form, review: e.target.value })}
+          />
 
-        <button type="submit">Submit</button>
-      </form>
+          <button className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
+            Submit Review
+          </button>
+        </form>
+      </div>
 
       {/* LIST */}
-      <h2>All Restaurants</h2>
+      <div className="max-w-4xl mx-auto">
+        <h2 className="text-xl font-semibold mb-4">All Restaurants</h2>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        restaurants.map((r, i) => (
-          <div
-            key={i}
-            style={{
-              border: "1px solid #ccc",
-              margin: 10,
-              padding: 10,
-            }}
-          >
-            <h3>{r.name}</h3>
-            <p>{r.cuisine}</p>
-            <p>⭐ {r.rating}</p>
-            <p>{r.review}</p>
+        {loading ? (
+          <p className="text-center">Loading...</p>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-4">
+            {restaurants.map((r, i) => (
+              <div
+                key={i}
+                className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition"
+              >
+                <h3 className="text-lg font-bold">{r.name}</h3>
+                <p className="text-gray-600">{r.cuisine}</p>
+                <p className="mt-1">⭐ {r.rating}/5</p>
+                <p className="text-sm mt-2 text-gray-700">{r.review}</p>
+              </div>
+            ))}
           </div>
-        ))
-      )}
+        )}
+      </div>
     </div>
   );
 }
