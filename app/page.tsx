@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { getRestaurants, addRestaurant, type Restaurant } from "./lib/api";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 /* -------------------- MODEL -------------------- */
 
 type FormState = {
@@ -15,6 +17,7 @@ type FormState = {
 export default function Home() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState<FormState>({
     name: "",
@@ -38,83 +41,129 @@ export default function Home() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    await addRestaurant(form);
+    setSubmitting(true);
 
-    setForm({
-      name: "",
-      cuisine: "",
-      rating: "",
-      review: "",
-    });
+    try {
+      await addRestaurant(form);
 
-    loadData();
+      setForm({
+        name: "",
+        cuisine: "",
+        rating: "",
+        review: "",
+      });
+
+      await loadData();
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 p-6">
-      {/* HEADER */}
-      <h1 className="text-3xl font-bold text-center mb-6">
-        🍽️ Restaurant Reviews
-      </h1>
+    <div className="relative min-h-screen text-gray-900 p-6 overflow-hidden bg-gradient-to-br from-blue-50 via-white to-rose-100">
+      {/* decorative blobs */}
+      <div className="absolute -top-20 -left-20 w-72 h-72 bg-pink-300 rounded-full blur-3xl opacity-30"></div>
+      <div className="absolute top-40 -right-20 w-72 h-72 bg-yellow-300 rounded-full blur-3xl opacity-30"></div>
+      <div className="absolute bottom-0 left-40 w-72 h-72 bg-orange-300 rounded-full blur-3xl opacity-20"></div>
+      <Navbar />
 
-      {/* FORM CARD */}
-      <div className="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-md mb-8">
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            className="w-full p-2 border rounded"
-            placeholder="Restaurant Name"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
+      <div className="relative z-10 max-w-5xl mx-auto mt-8">
+        {/* HEADER */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-extrabold tracking-tight">
+            🍽️ FoodieFeed
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Discover and share your favorite places to eat
+          </p>
+        </div>
 
-          <input
-            className="w-full p-2 border rounded"
-            placeholder="Cuisine"
-            value={form.cuisine}
-            onChange={(e) => setForm({ ...form, cuisine: e.target.value })}
-          />
+        {/* FORM */}
+        <div className="backdrop-blur-xl bg-white/70 border border-white/40 shadow-xl rounded-2xl p-6 mb-10">
+          <form onSubmit={handleSubmit} className="grid gap-3">
+            <input
+              className="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              placeholder="Restaurant Name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
 
-          <input
-            className="w-full p-2 border rounded"
-            placeholder="Rating (1-5)"
-            value={form.rating}
-            onChange={(e) => setForm({ ...form, rating: e.target.value })}
-          />
+            <input
+              className="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              placeholder="Cuisine (e.g. Italian, Sri Lankan)"
+              value={form.cuisine}
+              onChange={(e) => setForm({ ...form, cuisine: e.target.value })}
+            />
 
-          <input
-            className="w-full p-2 border rounded"
-            placeholder="Review"
-            value={form.review}
-            onChange={(e) => setForm({ ...form, review: e.target.value })}
-          />
+            <input
+              className="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              placeholder="Rating (1 - 5)"
+              value={form.rating}
+              onChange={(e) => setForm({ ...form, rating: e.target.value })}
+            />
 
-          <button className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
-            Submit Review
-          </button>
-        </form>
-      </div>
+            <input
+              className="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              placeholder="Your Review"
+              value={form.review}
+              onChange={(e) => setForm({ ...form, review: e.target.value })}
+            />
 
-      {/* LIST */}
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-xl font-semibold mb-4">All Restaurants</h2>
+            <button
+              disabled={submitting}
+              className={`mt-2 w-full font-semibold p-3 rounded-xl shadow transition ${
+                submitting
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-blue-500 to-blue-900 hover:scale-[1.02]"
+              } text-white`}
+            >
+              {submitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  Submitting...
+                </span>
+              ) : (
+                "Submit Review"
+              )}
+            </button>
+          </form>
+        </div>
 
-        {loading ? (
-          <p className="text-center">Loading...</p>
-        ) : (
-          <div className="grid md:grid-cols-2 gap-4">
-            {restaurants.map((r, i) => (
-              <div
-                key={i}
-                className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition"
-              >
-                <h3 className="text-lg font-bold">{r.name}</h3>
-                <p className="text-gray-600">{r.cuisine}</p>
-                <p className="mt-1">⭐ {r.rating}/5</p>
-                <p className="text-sm mt-2 text-gray-700">{r.review}</p>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* LIST */}
+        <div>
+          <h2 className="text-2xl font-bold mb-6">Latest Restaurants</h2>
+
+          {loading ? (
+            <p className="text-center text-gray-600">Loading...</p>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-6">
+              {restaurants.map((r, i) => (
+                <div
+                  key={i}
+                  className="group bg-white/80 backdrop-blur border border-white/40 p-5 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition"
+                >
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-lg font-bold group-hover:text-blue-600 transition">
+                      {r.name}
+                    </h3>
+
+                    <span className="text-xs px-3 py-1 bg-amber-100 text-amber-700 rounded-full">
+                      ⭐ {r.rating}/5
+                    </span>
+                  </div>
+
+                  <p className="text-sm text-gray-500 mt-1">{r.cuisine}</p>
+
+                  <p className="mt-3 text-gray-700 text-sm leading-relaxed">
+                    {r.review}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <Footer />
       </div>
     </div>
   );
