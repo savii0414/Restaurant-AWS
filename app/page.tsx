@@ -27,16 +27,19 @@ export default function Home() {
   });
 
   useEffect(() => {
-    loadData();
+    const load = async () => {
+      setLoading(true);
+
+      try {
+        const data = await getRestaurants();
+        setRestaurants(data.Items);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
   }, []);
-
-  async function loadData() {
-    setLoading(true);
-    const data = await getRestaurants();
-    setRestaurants(data.Items);
-
-    setLoading(false);
-  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,7 +56,8 @@ export default function Home() {
         review: "",
       });
 
-      await loadData();
+      const data = await getRestaurants();
+      setRestaurants(data.Items);
     } finally {
       setSubmitting(false);
     }
