@@ -4,6 +4,7 @@ export type Restaurant = {
   rating: string | number;
   review: string;
   restaurantId?: string;
+  image?: string;
 };
 
 type DynamoResponse = {

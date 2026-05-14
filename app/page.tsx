@@ -1,9 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getRestaurants, addRestaurant, type Restaurant } from "./lib/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+
+// 1. helpers
+const convertToBase64 = (file: File) => {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+  });
+};
+
 /* -------------------- MODEL -------------------- */
 
 type FormState = {
@@ -18,6 +30,8 @@ export default function Home() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [form, setForm] = useState<FormState>({
     name: "",
@@ -47,7 +61,16 @@ export default function Home() {
     setSubmitting(true);
 
     try {
-      await addRestaurant(form);
+      let imageBase64 = "";
+
+      if (image) {
+        imageBase64 = await convertToBase64(image);
+      }
+
+      await addRestaurant({
+        ...form,
+        image: imageBase64,
+      });
 
       setForm({
         name: "",
@@ -55,6 +78,12 @@ export default function Home() {
         rating: "",
         review: "",
       });
+
+      setImage(null);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
 
       const data = await getRestaurants();
       setRestaurants(data.Items);
@@ -113,6 +142,18 @@ export default function Home() {
               onChange={(e) => setForm({ ...form, review: e.target.value })}
             />
 
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                if (e.target.files?.[0]) {
+                  setImage(e.target.files[0]);
+                }
+              }}
+              className="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            />
+
             <button
               disabled={submitting}
               className={`mt-2 w-full font-semibold p-3 rounded-xl shadow transition ${
@@ -155,6 +196,14 @@ export default function Home() {
                       ⭐ {r.rating}/5
                     </span>
                   </div>
+
+                  {r.imageUrl && (
+                    <img
+                      src={r.imageUrl}
+                      alt={r.name}
+                      className="w-full h-48 object-cover rounded-xl mb-4"
+                    />
+                  )}
 
                   <p className="text-sm text-gray-500 mt-1">{r.cuisine}</p>
 
