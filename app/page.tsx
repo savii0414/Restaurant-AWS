@@ -30,7 +30,7 @@ export default function Home() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState(false);
-  const [image, setImage] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [form, setForm] = useState<FormState>({
@@ -61,10 +61,10 @@ export default function Home() {
     setSubmitting(true);
 
     try {
-      let imageBase64 = "";
+      let imageBase64  = "";
 
-      if (image) {
-        imageBase64 = await convertToBase64(image);
+      if (file) {
+      imageBase64  = await convertToBase64(file);
       }
 
       await addRestaurant({
@@ -79,7 +79,7 @@ export default function Home() {
         review: "",
       });
 
-      setImage(null);
+      setFile(null);
 
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -147,10 +147,10 @@ export default function Home() {
               type="file"
               accept="image/*"
               onChange={(e) => {
-                if (e.target.files?.[0]) {
-                  setImage(e.target.files[0]);
-                }
-              }}
+  if (e.target.files?.[0]) {
+    setFile(e.target.files[0]);
+  }
+}}
               className="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
 

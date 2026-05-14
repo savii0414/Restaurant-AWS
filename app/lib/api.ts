@@ -5,6 +5,7 @@ export type Restaurant = {
   review: string;
   restaurantId?: string;
   image?: string;
+  imageUrl?: string;
 };
 
 type DynamoResponse = {
